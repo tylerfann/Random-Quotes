@@ -1,33 +1,36 @@
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
 import QuoteDisplay from "../components/QuoteDisplay";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getQuote } from "../lib/datasource";
+import { getFavoritesFromStorage, setFavoritesInStorage } from "../lib/helpers";
 
 const Home = (props) => {
-  const [data, setData] = useState(props.results);
-  const [page, setPage] = useState(1);
-  const [index, setIndex] = useState(0);
+  const [data, setData] = useState([props]);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState({ errorText: "" });
+  const [index, setIndex] = useState(0);
+  const [favorites, setFavorites] = useState({});
+
+  useEffect(() => {
+    const favs = getFavoritesFromStorage();
+    setFavorites(favs);
+  }, []);
 
   const nextQuote = async () => {
-    const newIndex = index + 1;
-    if (data[newIndex]) {
-      setIndex(newIndex);
+    if (index < data.length - 1) {
+      setIndex(index + 1);
     } else {
       setLoading(true);
-      const nextPage = page + 1;
-      const newData = await getQuote(nextPage);
+      const newData = await getQuote();
       if (newData.errorText) {
         setError(newData);
         setLoading(false);
       } else if (newData) {
+        setData([...data, newData]);
+        setIndex(index + 1);
+        setError({ errorText: "" });
         setLoading(false);
-        const combinedData = data.concat(newData.results);
-        setData(combinedData);
-        setIndex(newIndex);
-        setPage(nextPage);
       }
     }
   };
@@ -39,21 +42,36 @@ const Home = (props) => {
     }
   };
 
+  const unfavoriteQuote = () => {
+    const currentQuoteId = data[index]._id;
+    const newFavs = { ...favorites, [currentQuoteId]: undefined };
+    setBothFavorites(newFavs);
+  };
+
+  const setBothFavorites = (favs) => {
+    setFavorites(favs);
+    setFavoritesInStorage(favs);
+  };
+
   const favoriteQuote = () => {
-    const favorites = localStorage.getItem("favorites");
-    if (favorites) {
-      const json = JSON.parse(favorites);
-      if (json.length > 0) {
-        const found = json.find((el) => el._id === data[index]._id);
-        if (!found) {
-          json.push(data[index]);
-          const stringData = JSON.stringify(json);
-          localStorage.setItem("favorites", stringData);
-        }
-      }
+    const currentQuoteId = data[index]._id;
+    if (!favorites[currentQuoteId]) {
+      const favs = {
+        ...favorites,
+        [currentQuoteId]: {
+          ...data[index],
+          favoritedAt: Date.now(),
+        },
+      };
+      setBothFavorites(favs);
     } else {
-      const stringData = JSON.stringify([data[index]]);
-      localStorage.setItem("favorites", stringData);
+      const favs = {
+        [currentQuoteId]: {
+          ...data[index],
+          favoritedAt: Date.now(),
+        },
+      };
+      setBothFavorites(favs);
     }
   };
 
@@ -75,6 +93,8 @@ const Home = (props) => {
           nextOnclick={nextQuote}
           previousOnclick={previousQuote}
           favoriteOnclick={favoriteQuote}
+          unfavoriteOnclick={unfavoriteQuote}
+          favorites={favorites}
         />
       )}
     </div>
@@ -83,7 +103,7 @@ const Home = (props) => {
 
 export const getStaticProps = async () => {
   return {
-    props: await getQuote(1),
+    props: await getQuote(),
   };
 };
 
