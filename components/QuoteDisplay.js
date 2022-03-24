@@ -12,38 +12,41 @@ const QuoteDisplay = ({
   isLoading,
   unfavoriteOnclick,
 }) => {
-  console.log('favorites' ,favorites)
+  const isFavorited = favorites[id] !== undefined;
   return (
-    <>
+    <div className="flex justify-center">
       {isLoading ? (
         <h2>Loading...</h2>
       ) : (
-        <div key={id}>
-          {favorites[id] !== undefined ? (
-            <Button
-              text="un-favorite"
-              styles={{ color: "pink" }}
-              onClick={unfavoriteOnclick}
-            />
-          ) : (
-            <Button
-              text="favorite"
-              styles={{ color: "yellow" }}
-              onClick={favoriteOnclick}
-            />
-          )}
-          <h3>{quote}</h3>
-          <p>{author}</p>
+        <div
+          key={id}
+          className="rounded border-2	border-black p-6 m-7 w-1/2 flex flex-col"
+        >
           <Button
-            text="previous"
-            styles={{ color: "blue" }}
-            onClick={previousOnclick}
-            index={index}
+            text={isFavorited ? "un-favorite" : "favorite"}
+            className={"self-end"}
+            onClick={isFavorited ? unfavoriteOnclick : favoriteOnclick}
           />
-          <Button text="next" styles={{ color: "red" }} onClick={nextOnclick} />
+          <div className="flex justify-center p-3 m-3">
+            <div className="w-3/4 flex flex-col">
+              <h3 className="text-center">{quote}</h3>
+              <p className="text-right">
+                {"-"} {author}
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-center">
+            <Button
+              text="previous"
+              className={"p-1 m-1"}
+              onClick={previousOnclick}
+              index={index}
+            />
+            <Button text="next" className={"p-1 m-1"} onClick={nextOnclick} />
+          </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 
