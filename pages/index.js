@@ -1,9 +1,9 @@
 import Head from "next/head";
-import styles from "../styles/Home.module.css";
 import QuoteDisplay from "../components/QuoteDisplay";
 import { useEffect, useState } from "react";
 import { getQuote } from "../lib/datasource";
 import { getFavoritesFromStorage, setFavoritesInStorage } from "../lib/helpers";
+import { getRandomColor } from "../lib/colors";
 
 const Home = (props) => {
   const [data, setData] = useState([props]);
@@ -11,12 +11,23 @@ const Home = (props) => {
   const [error, setError] = useState({ errorText: "" });
   const [index, setIndex] = useState(0);
   const [favorites, setFavorites] = useState({});
+  const [backgroundColor, setBgColor] = useState("");
 
   useEffect(() => {
     const favs = getFavoritesFromStorage();
     setFavorites(favs);
+    setBgColor(getRandomColor());
   }, []);
 
+  useEffect(() => {
+    setBgColor(getRandomColor());
+  }, [index]);
+
+  const loadingDelay = () => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+  };
   const nextQuote = async () => {
     if (index < data.length - 1) {
       setIndex(index + 1);
@@ -25,12 +36,12 @@ const Home = (props) => {
       const newData = await getQuote();
       if (newData.errorText) {
         setError(newData);
-        setLoading(false);
+        loadingDelay();
       } else if (newData) {
         setData([...data, newData]);
         setIndex(index + 1);
         setError({ errorText: "" });
-        setLoading(false);
+        loadingDelay();
       }
     }
   };
@@ -76,7 +87,10 @@ const Home = (props) => {
   };
 
   return (
-    <div className={styles.container}>
+    <div
+      className="h-screen transition duration-700 ease-in-out"
+      style={{ backgroundColor }}
+    >
       <Head>
         <title>Random Quotes</title>
         <link rel="icon" href="/favicon.ico" />

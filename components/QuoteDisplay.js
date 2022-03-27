@@ -6,6 +6,7 @@ import heartThin from "../public/heart-thin.png";
 import heartThinHover from "../public/heart-thin-hover.png";
 import heartFull from "../public/heart-full.png";
 import heartFullHover from "../public/heart-full-hover.png";
+import Loading from "../components/Loading";
 
 const QuoteDisplay = ({
   quote,
@@ -26,7 +27,7 @@ const QuoteDisplay = ({
   useEffect(() => {
     setNextArrowHover(false);
     setPrevArrowHover(false);
-  }, [id])
+  }, [id]);
   const isFavorited = favorites[id] !== undefined;
 
   const heartHover = (isHovered) => () => {
@@ -53,58 +54,65 @@ const QuoteDisplay = ({
 
   return (
     <div className="flex justify-center">
-      {isLoading ? (
-        <h2>Loading...</h2>
-      ) : (
-        <div
-          key={id}
-          className="rounded border-2	border-black p-6 m-7 w-1/2 flex flex-col"
-        >
+      <div
+        key={id}
+        style={{ backgroundColor: "white" }}
+        className="rounded border-2	border-black p-6 m-10 w-[700px] flex flex-col"
+      >
+        {!isLoading && (
           <Button
             text={isFavorited ? "un-favorite" : "favorite"}
             className={"self-end"}
             onClick={isFavorited ? unfavoriteOnclick : favoriteOnclick}
             image={heartIcon}
-            imageSize={{ height: 32, width: 32 }}
+            imageSize={{ height: 40, width: 40 }}
             onMouseEnter={heartHover(true)}
             onMouseLeave={heartHover(false)}
           />
-          <div className="flex justify-center p-3 m-3">
-            <div className="w-3/4 flex flex-col">
-              <h3 className="text-center">{quote}</h3>
-              <p className="text-right">
+        )}
+        <div className="flex justify-center p-3 m-3">
+          {isLoading ? (
+            <Loading />
+          ) : (
+            <div className="flex flex-col">
+              <h3 className="text-center font-serif text-2xl m-2 p-2">
+                {quote}
+              </h3>
+              <p className="text-right font-serif text-lg">
                 {"-"} {author}
               </p>
             </div>
-          </div>
-          <div className="flex justify-center">
-            {index === 0 ? (
-              <div className="p-1 m-1 w-8	h-8"></div>
-            ) : (
-              <Button
-                text="previous"
-                className={"p-1 m-1"}
-                imageStyle={"rotate-180"}
-                onClick={previousOnclick}
-                index={index}
-                image={prevArrowIcon}
-                imageSize={{ width: 32, height: 32 }}
-                onMouseEnter={prevArrowHover(true)}
-                onMouseLeave={prevArrowHover(false)}
-              />
-            )}
+          )}
+        </div>
+        <div className="flex justify-center">
+          {isLoading || index === 0 ? (
+            <div className="p-1 m-1 w-8	h-8"></div>
+          ) : (
+            <Button
+              text="previous"
+              className={"p-1 m-1"}
+              imageStyle={"rotate-180"}
+              onClick={previousOnclick}
+              index={index}
+              image={prevArrowIcon}
+              imageSize={{ width: 40, height: 40 }}
+              onMouseEnter={prevArrowHover(true)}
+              onMouseLeave={prevArrowHover(false)}
+            />
+          )}
+          {!isLoading && (
             <Button
               image={nextArrowIcon}
-              imageSize={{ width: 32, height: 32 }}
+              imageSize={{ width: 40, height: 40 }}
               text="next"
               className={"p-1 m-1"}
               onClick={nextOnclick}
               onMouseEnter={nextArrowHover(true)}
               onMouseLeave={nextArrowHover(false)}
             />
-          </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };
