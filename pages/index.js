@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getQuote } from "../lib/datasource";
 import { getFavoritesFromStorage, setFavoritesInStorage } from "../lib/helpers";
 import { getRandomColor } from "../lib/colors";
+import NavBar from "../components/NavBar";
 
 const Home = (props) => {
   const [data, setData] = useState([props]);
@@ -12,11 +13,16 @@ const Home = (props) => {
   const [index, setIndex] = useState(0);
   const [favorites, setFavorites] = useState({});
   const [backgroundColor, setBgColor] = useState("");
+  const [isSubscribed, setIsSubscribed] = useState(true);
 
   useEffect(() => {
     const favs = getFavoritesFromStorage();
     setFavorites(favs);
     setBgColor(getRandomColor());
+
+    return () => {
+      setIsSubscribed(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -34,14 +40,16 @@ const Home = (props) => {
     } else {
       setLoading(true);
       const newData = await getQuote();
-      if (newData.errorText) {
-        setError(newData);
-        loadingDelay();
-      } else if (newData) {
-        setData([...data, newData]);
-        setIndex(index + 1);
-        setError({ errorText: "" });
-        loadingDelay();
+      if (isSubscribed) {
+        if (newData.errorText) {
+          setError(newData);
+          loadingDelay();
+        } else if (newData) {
+          setData([...data, newData]);
+          setIndex(index + 1);
+          setError({ errorText: "" });
+          loadingDelay();
+        }
       }
     }
   };
@@ -95,6 +103,7 @@ const Home = (props) => {
         <title>Random Quotes</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <NavBar />
       {error.errorText ? (
         <h2>{error.errorText}</h2>
       ) : (

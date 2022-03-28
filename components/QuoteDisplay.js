@@ -19,6 +19,7 @@ const QuoteDisplay = ({
   index,
   isLoading,
   unfavoriteOnclick,
+  hideButtons,
 }) => {
   const [heartHovered, setHeartHover] = useState(false);
   const [nextArrowHovered, setNextArrowHover] = useState(false);
@@ -28,7 +29,11 @@ const QuoteDisplay = ({
     setNextArrowHover(false);
     setPrevArrowHover(false);
   }, [id]);
-  const isFavorited = favorites[id] !== undefined;
+
+  let isFavorited;
+  if (!hideButtons) {
+    isFavorited = favorites[id] !== undefined;
+  }
 
   const heartHover = (isHovered) => () => {
     setHeartHover(isHovered);
@@ -59,7 +64,7 @@ const QuoteDisplay = ({
         style={{ backgroundColor: "white" }}
         className="rounded border-2	border-black p-6 m-10 w-[700px] flex flex-col"
       >
-        {!isLoading && (
+        {!hideButtons && !isLoading && (
           <Button
             text={isFavorited ? "un-favorite" : "favorite"}
             className={"self-end"}
@@ -84,34 +89,36 @@ const QuoteDisplay = ({
             </div>
           )}
         </div>
-        <div className="flex justify-center">
-          {isLoading || index === 0 ? (
-            <div className="p-1 m-1 w-8	h-8"></div>
-          ) : (
-            <Button
-              text="previous"
-              className={"p-1 m-1"}
-              imageStyle={"rotate-180"}
-              onClick={previousOnclick}
-              index={index}
-              image={prevArrowIcon}
-              imageSize={{ width: 40, height: 40 }}
-              onMouseEnter={prevArrowHover(true)}
-              onMouseLeave={prevArrowHover(false)}
-            />
-          )}
-          {!isLoading && (
-            <Button
-              image={nextArrowIcon}
-              imageSize={{ width: 40, height: 40 }}
-              text="next"
-              className={"p-1 m-1"}
-              onClick={nextOnclick}
-              onMouseEnter={nextArrowHover(true)}
-              onMouseLeave={nextArrowHover(false)}
-            />
-          )}
-        </div>
+        {!hideButtons && (
+          <div className="flex justify-center">
+            {isLoading || index === 0 ? (
+              <div className="p-1 m-1 w-8	h-8"></div>
+            ) : (
+              <Button
+                text="previous"
+                className={"p-1 m-1"}
+                imageStyle={"rotate-180"}
+                onClick={previousOnclick}
+                index={index}
+                image={prevArrowIcon}
+                imageSize={{ width: 40, height: 40 }}
+                onMouseEnter={prevArrowHover(true)}
+                onMouseLeave={prevArrowHover(false)}
+              />
+            )}
+            {!isLoading && (
+              <Button
+                image={nextArrowIcon}
+                imageSize={{ width: 40, height: 40 }}
+                text="next"
+                className={"p-1 m-1"}
+                onClick={nextOnclick}
+                onMouseEnter={nextArrowHover(true)}
+                onMouseLeave={nextArrowHover(false)}
+              />
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
