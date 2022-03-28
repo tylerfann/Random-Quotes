@@ -33,6 +33,7 @@ const Favorites = (props) => {
                   quote={el.content}
                   id={el._id}
                   hideButtons
+                  favorites={storageFavs}
                 />
               </li>
             );

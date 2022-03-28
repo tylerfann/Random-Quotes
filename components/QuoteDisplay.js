@@ -30,10 +30,7 @@ const QuoteDisplay = ({
     setPrevArrowHover(false);
   }, [id]);
 
-  let isFavorited;
-  if (!hideButtons) {
-    isFavorited = favorites[id] !== undefined;
-  }
+  const isFavorited = favorites[id] !== undefined;
 
   const heartHover = (isHovered) => () => {
     setHeartHover(isHovered);
